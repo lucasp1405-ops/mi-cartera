@@ -14,6 +14,10 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 
+<!-- OneSignal: manda avisos push reales, aunque el teléfono esté bloqueado o la app cerrada -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>window.OneSignalDeferred = window.OneSignalDeferred || [];</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -314,6 +318,21 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  .live-dot{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    background:var(--down);margin-right:9px;
+    box-shadow:0 0 0 rgba(255,92,122,0.55);
+    animation:live-pulse 1.6s ease-out infinite;
+  }
+  @keyframes live-pulse{
+    0%{box-shadow:0 0 0 0 rgba(255,92,122,0.55);}
+    70%{box-shadow:0 0 0 7px rgba(255,92,122,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,92,122,0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .live-dot{animation:none;}
+  }
+
   .retry-btn{
     margin-top:12px;
     background:var(--c-yellow);
@@ -612,6 +631,9 @@
   <div class="section-title">Tu cartera</div>
   <div class="portfolio-grid" id="chips"></div>
 
+  <div class="section-title"><span class="live-dot"></span>Última hora</div>
+  <div id="latestNewsWrap" style="margin-bottom:36px;"></div>
+
   <div class="section-title">Panorama macro</div>
   <div class="macro-wrap" id="macroWrap"></div>
 
@@ -813,6 +835,27 @@ const SEEN_NEWS_KEY = 'mi-cartera-seen-news-links';
 const UNREAD_NEWS_KEY = 'mi-cartera-unread-news';
 const NOTIFY_ENABLED_KEY = 'mi-cartera-notify-enabled';
 
+/* ---------- OneSignal: avisos push reales (llegan aunque el teléfono esté bloqueado o
+   cierres la app del todo). Un servidor propio (GitHub Actions) revisa las noticias cada
+   20 min y le pide a OneSignal que mande el aviso — eso es lo que hace posible que llegue
+   con el teléfono bloqueado, cosa que el navegador solo no puede hacer. ---------- */
+const ONESIGNAL_APP_ID = "37af855d-3c1e-4c2e-b7be-428c01806b62";
+let oneSignalReady = false;
+if(ONESIGNAL_APP_ID.indexOf('REEMPLAZAR') === -1){
+  window.OneSignalDeferred.push(async function(OneSignal){
+    window.OneSignal = OneSignal;
+    try{ await OneSignal.init({ appId: ONESIGNAL_APP_ID }); }catch(e){ return; }
+    oneSignalReady = true;
+    try{ if(OneSignal.User.PushSubscription.optedIn) syncPortfolioTag(); }catch(e){}
+    updateNotifyBtnUI();
+  });
+}
+
+function syncPortfolioTag(){
+  if(!oneSignalReady || !window.OneSignal) return;
+  try{ window.OneSignal.User.addTag('portfolio', companies.slice(0, 50).join('|')); }catch(e){}
+}
+
 let seenNewsLinks = {}; // { company: [link, ...] }
 try{ seenNewsLinks = JSON.parse(localStorage.getItem(SEEN_NEWS_KEY) || '{}'); }catch(e){ seenNewsLinks = {}; }
 function saveSeenNewsLinks(){ try{ localStorage.setItem(SEEN_NEWS_KEY, JSON.stringify(seenNewsLinks)); }catch(e){} }
@@ -866,9 +909,47 @@ function updateNotifyBtnUI(){
   btn.textContent = on ? '🔔' : '🔕';
   btn.title = !supported
     ? 'Tu navegador no soporta notificaciones'
-    : (on ? 'Avisos activados (click para desactivar)' : 'Activar avisos cuando haya noticias nuevas');
+    : (on ? 'Avisos activados, incluso con la app cerrada (click para desactivar)' : 'Activar avisos cuando haya noticias nuevas');
   btn.style.background = on ? 'var(--c-yellow)' : '';
 }
+
+/* Sondeo periódico de noticias: mientras la app esté ABIERTA y la pestaña/pantalla esté
+   visible, revisa cada tanto si hay artículos nuevos por empresa y avisa (punto rojo +
+   notificación si está activada). Importante: esto solo corre mientras la app está en
+   primer plano — el navegador (y en especial iOS) pausa el JavaScript de una pestaña en
+   segundo plano o con la pantalla bloqueada, así que no hay forma de "revisar constantemente"
+   con el teléfono bloqueado o la app cerrada sin un servidor propio enviando avisos push.
+   Esto es lo más cerca que se puede llegar sin ese servidor. */
+const NEWS_POLL_INTERVAL_MS = 10 * 60 * 1000; // cada 10 min mientras está abierta y visible
+let newsPollTimer = null;
+
+async function checkNewsForCompany(company){
+  try{
+    const items = await fetchNewsFor(company);
+    newsCache[company] = items;
+    delete newsError[company];
+    registerNewsUpdate(company, items);
+  }catch(err){ /* sondeo silencioso: no pisa el estado de error de una carga normal */ }
+}
+
+async function pollForNewsUpdates(){
+  if(companies.length === 0 || !navigator.onLine || document.visibilityState !== 'visible') return;
+  await Promise.allSettled(companies.map(c => checkNewsForCompany(c)));
+  saveNewsCacheToStorage();
+  renderChips();
+  renderContent();
+}
+
+function startNewsPolling(){
+  if(newsPollTimer) return;
+  newsPollTimer = setInterval(pollForNewsUpdates, NEWS_POLL_INTERVAL_MS);
+}
+
+document.addEventListener('visibilitychange', ()=>{
+  // Al volver a la app (cambiar de pestaña, desbloquear el teléfono) revisa al toque,
+  // por si pasó más de lo que tardaría el próximo sondeo mientras estuvo en segundo plano.
+  if(document.visibilityState === 'visible') pollForNewsUpdates();
+});
 
 let tickerCache = {};
 const HIDDEN_NEWS_KEY = 'mi-cartera-hidden-news';
@@ -978,7 +1059,7 @@ function loadCompanies(){
   }catch(e){}
   return [...DEFAULT_PORTFOLIO];
 }
-function saveCompanies(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(companies)); }
+function saveCompanies(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(companies)); syncPortfolioTag(); }
 function saveTickerCache(){ localStorage.setItem(TICKER_KEY, JSON.stringify(tickerCache)); }
 
 function getFinnhubKey(){ return localStorage.getItem(FINNHUB_KEY_STORE) || ''; }
@@ -1014,6 +1095,7 @@ function initApp(){
   renderChips();
   renderMacro();
   loadAllNews(false);
+  startNewsPolling();
 }
 
 function unlockApp(){
@@ -1839,7 +1921,46 @@ function renderMacro(){
 
 /* ---------------- Render: noticias por empresa ---------------- */
 
+/* Últimas noticias de toda la cartera, mezcladas y ordenadas por fecha (la más nueva
+   primero), sin importar de qué empresa sean. */
+function getLatestNewsAcrossPortfolio(limit){
+  const all = [];
+  companies.forEach(company=>{
+    const items = newsCache[company];
+    if(!items) return;
+    items.forEach(item=>{
+      const t = new Date(item.pubDate).getTime();
+      if(!isNaN(t)) all.push({ title: item.title, link: item.link, source: item.source, pubDate: item.pubDate, company, t });
+    });
+  });
+  all.sort((a,b)=> b.t - a.t);
+  return all.slice(0, limit || 8);
+}
+
+function renderLatestNews(){
+  const wrap = document.getElementById('latestNewsWrap');
+  if(!wrap) return;
+  const latest = getLatestNewsAcrossPortfolio(8);
+  if(latest.length === 0){
+    wrap.innerHTML = `<div class="empty">Todavía no hay noticias cargadas de tu cartera.</div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="news-grid">` + latest.map(item=>{
+    const tagColor = tagColorFor(item.company);
+    return `
+      <div class="news-card">
+        <span class="tag" style="background:${tagColor.bg};color:${tagColor.ink}">${escapeHtml(item.company)}</span>
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
+        <div class="meta">
+          <span>${escapeHtml(item.source || '')}</span>
+          <span>${timeAgo(item.pubDate)}</span>
+        </div>
+      </div>`;
+  }).join('') + `</div>`;
+}
+
 function renderContent(loading){
+  renderLatestNews();
   const content = document.getElementById('content');
   const countText = document.getElementById('countText');
   const unreadCount = companies.filter(c=>unreadNewsCompanies.has(c)).length;
@@ -1941,6 +2062,7 @@ document.getElementById('notifyBtn').addEventListener('click', async ()=>{
   const currentlyOn = notifyEnabled() && Notification.permission === 'granted';
   if(currentlyOn){
     localStorage.setItem(NOTIFY_ENABLED_KEY, '0');
+    try{ if(oneSignalReady) await window.OneSignal.User.PushSubscription.optOut(); }catch(e){}
     updateNotifyBtnUI();
     return;
   }
@@ -1948,8 +2070,23 @@ document.getElementById('notifyBtn').addEventListener('click', async ()=>{
     alert('Bloqueaste los avisos para esta página. Para activarlos, tenés que habilitar notificaciones para este sitio desde la configuración de tu navegador.');
     return;
   }
-  const perm = await Notification.requestPermission();
-  if(perm === 'granted') localStorage.setItem(NOTIFY_ENABLED_KEY, '1');
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if(isIOS && !isStandalone){
+    alert('Para activar los avisos en el iPhone, primero agregá esta app a tu pantalla de inicio (compartir → "Agregar a inicio") y abrila desde ahí — recién entonces se puede activar.');
+    return;
+  }
+  try{
+    if(oneSignalReady){
+      await window.OneSignal.User.PushSubscription.optIn(); // pide permiso y suscribe el dispositivo
+    }else{
+      await Notification.requestPermission();
+    }
+  }catch(e){}
+  if(Notification.permission === 'granted'){
+    localStorage.setItem(NOTIFY_ENABLED_KEY, '1');
+    syncPortfolioTag();
+  }
   updateNotifyBtnUI();
 });
 updateNotifyBtnUI();
