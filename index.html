@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mi Cartera · Noticias</title>
+
+<!-- PWA: permite "Agregar a pantalla de inicio" en iPhone y que abra a pantalla completa -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F6C945">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mi Cartera">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6C945;
+    --panel:#ffffff;
+    --ink:#14151A;
+    --ink-dim:#5b5c66;
+    --line:#14151A;
+    --border-w:2.5px;
+    --shadow:4px 4px 0 var(--ink);
+    --shadow-lg:6px 6px 0 var(--ink);
+    --shadow-sm:3px 3px 0 var(--ink);
+    --radius-xl:26px;
+    --radius-lg:20px;
+    --radius-md:14px;
+    --radius-pill:999px;
+
+    --c-indigo:#6a6af0;
+    --c-indigo-ink:#2f2fb8;
+    --c-pink:#ff8fab;
+    --c-pink-ink:#e05a82;
+    --c-teal:#3ddbc4;
+    --c-teal-ink:#0e9c8f;
+    --c-orange:#ffb15c;
+    --c-orange-ink:#e5842c;
+    --c-purple:#b09bf7;
+    --c-purple-ink:#7452d1;
+    --c-yellow:#ffd766;
+    --c-yellow-ink:#dba61f;
+    --up:#1ec98a;
+    --down:#ff5c7a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Poppins',system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    min-height:100vh;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:calc(70px + env(safe-area-inset-bottom));
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right);
+  }
+  .container{max-width:1080px;margin:0 auto;padding:0 22px;}
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:28px 22px 0;
+    max-width:1080px;margin:0 auto;
+  }
+  .icon-btn{
+    width:44px;height:44px;border-radius:14px;
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    color:var(--ink);
+    transition:transform .1s, box-shadow .1s;
+  }
+  .icon-btn:active{transform:translate(2px,2px);box-shadow:none;}
+  .topbar-actions{display:flex;gap:10px;}
+
+  /* Header */
+  header.hero{
+    max-width:1080px;margin:0 auto;padding:22px 22px 0;
+  }
+  h1{
+    font-size:34px;
+    margin:0;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    -webkit-text-stroke: 0.5px var(--ink);
+  }
+  .subtitle{
+    color:var(--ink);
+    opacity:0.65;
+    font-size:15px;
+    margin:8px 0 0;
+    max-width:560px;
+    font-weight:600;
+  }
+
+  /* Search / add bar */
+  .search-row{
+    display:flex;gap:10px;
+    margin:26px 0 8px;
+  }
+  .search-pill{
+    flex:1;
+    display:flex;align-items:center;gap:10px;
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-pill);
+    padding:14px 20px;
+    box-shadow:var(--shadow-sm);
+  }
+  .search-pill span.icon{font-size:16px;color:var(--ink);}
+  .search-pill input{
+    border:none;outline:none;background:transparent;
+    font-family:inherit;font-size:14.5px;font-weight:600;
+    color:var(--ink);flex:1;
+  }
+  .search-pill input::placeholder{color:var(--ink-dim);}
+  .add-btn{
+    width:48px;height:48px;min-width:48px;
+    border-radius:50%;
+    background:var(--c-yellow);
+    color:var(--ink);font-size:22px;font-weight:800;
+    border:var(--border-w) solid var(--ink);cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .1s, box-shadow .1s;
+  }
+  .add-btn:active{transform:translate(2px,2px);box-shadow:none;}
+
+  .status-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:18px 2px 22px;color:var(--ink);opacity:0.7;font-size:13px;font-weight:600;
+    flex-wrap:wrap;gap:10px;
+  }
+  .status-bar .dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--c-teal);margin-right:6px;
+    border:1.5px solid var(--ink);
+  }
+  .pill-btn{
+    background:var(--panel);
+    color:var(--ink);
+    border:var(--border-w) solid var(--ink);
+    padding:9px 16px;
+    border-radius:var(--radius-pill);
+    font-family:inherit;font-weight:700;font-size:12.5px;
+    cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    display:inline-flex;align-items:center;gap:6px;
+    transition:transform .1s, box-shadow .1s;
+  }
+  .pill-btn:active{transform:translate(2px,2px);box-shadow:none;}
+  .pill-btn.accent{
+    background:var(--c-yellow);
+    color:var(--ink);
+  }
+
+  /* Section titles */
+  .section-title{
+    font-size:19px;font-weight:700;margin:0 2px 14px;
+    letter-spacing:-0.01em;
+  }
+  .section-title.with-gap{margin-top:8px;}
+  .subsection-title{
+    font-size:14px;font-weight:700;margin:22px 2px 12px;
+    color:var(--ink-dim);text-transform:uppercase;letter-spacing:.04em;
+  }
+  .subsection-title:first-child{margin-top:0;}
+
+  /* Portfolio cards grid */
+  .portfolio-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
+    gap:16px;
+    margin-bottom:36px;
+  }
+  .p-card{
+    position:relative;
+    border-radius:var(--radius-lg);
+    padding:18px;
+    min-height:150px;
+    margin-top:12px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    cursor:pointer;
+    border:var(--border-w) solid var(--ink);
+    text-align:left;
+    background:var(--panel);
+    box-shadow:var(--shadow);
+    transition:transform .12s, box-shadow .12s;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .p-card::before{
+    content:'';
+    position:absolute;
+    top:-11px; left:18px;
+    width:56px; height:16px;
+    background:var(--tab-color, var(--ink));
+    border:2px solid var(--ink);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+  }
+  .p-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+  .p-card:active{transform:translate(2px,2px);box-shadow:none;}
+  .p-card.selected{outline:3px solid var(--ink);outline-offset:2px;}
+  .p-card .badge{
+    width:34px;height:34px;border-radius:10px;
+    background:var(--tab-color, var(--ink));
+    border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:800;
+    color:var(--ink);
+  }
+  .p-card .name{
+    font-weight:800;font-size:15.5px;line-height:1.25;
+    letter-spacing:-0.01em;
+  }
+  .p-card .price-tag{
+    font-size:12px;font-weight:700;opacity:0.75;
+  }
+  .p-card .remove{
+    position:absolute;top:10px;right:10px;
+    width:24px;height:24px;border-radius:8px;
+    background:var(--panel);
+    border:2px solid var(--ink);
+    color:var(--ink);
+    font-size:12px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .15s;
+  }
+  .p-card:hover .remove{opacity:1;}
+  .p-card .unread-dot{
+    position:absolute;top:10px;left:10px;
+    width:11px;height:11px;border-radius:50%;
+    background:var(--down);
+    border:2px solid var(--ink);
+  }
+
+  .p-card.all-card{
+    background:var(--ink);
+    color:white;
+  }
+  .p-card.all-card::before{ display:none; }
+  .p-card.all-card .badge{background:rgba(255,255,255,0.16);border-color:white;color:white;}
+
+  /* News */
+  .news-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
+    gap:16px;
+  }
+  .news-card{
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .news-card .tag{
+    align-self:flex-start;
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    padding:5px 12px;
+    border-radius:var(--radius-pill);
+    border:1.5px solid var(--ink);
+  }
+  .news-card a{
+    color:var(--ink);
+    text-decoration:none;
+    font-weight:700;
+    font-size:15px;
+    line-height:1.45;
+  }
+  .news-card a:hover{color:var(--c-indigo-ink);}
+  .news-card .meta{
+    color:var(--ink);
+    opacity:0.65;
+    font-size:12.5px;
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+
+  .empty, .loading{
+    text-align:center;
+    color:var(--ink);
+    opacity:0.75;
+    padding:50px 20px;
+    font-size:14.5px;
+    font-weight:600;
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+  }
+  .loading .spinner{
+    width:26px;height:26px;
+    border:3px solid var(--line);
+    border-top-color:var(--c-indigo-ink);
+    border-radius:50%;
+    margin:0 auto 14px;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .retry-btn{
+    margin-top:12px;
+    background:var(--c-yellow);
+    color:var(--ink);
+    border:var(--border-w) solid var(--ink);
+    padding:10px 18px;
+    border-radius:var(--radius-pill);
+    font-family:inherit;font-weight:700;font-size:13px;
+    cursor:pointer;
+  }
+
+  .company-section{margin-bottom:34px;}
+  .company-section h2{
+    font-size:16px;
+    margin:0 0 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .section-remove{
+    width:26px;height:26px;border-radius:8px;
+    background:var(--panel);
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    font-size:12px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    transition:transform .1s, background .15s;
+  }
+  .section-remove:hover{background:var(--down);color:white;}
+  .section-remove:active{transform:translate(1px,1px);}
+  .company-section h2 .avatar{
+    width:30px;height:30px;border-radius:9px;
+    border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;color:var(--ink);
+  }
+
+  /* Valuation card */
+  .val-card{
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:20px;
+    margin-bottom:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    align-items:center;
+  }
+  .val-price{
+    display:flex;flex-direction:column;gap:2px;min-width:120px;
+  }
+  .val-price .price{font-size:26px;font-weight:800;letter-spacing:-0.01em;}
+  .val-price .change{font-size:13px;font-weight:700;}
+  .val-price .change.up{color:var(--up);}
+  .val-price .change.down{color:var(--down);}
+  .val-stats{
+    display:flex;flex-wrap:wrap;gap:22px;flex:1;
+  }
+  .val-stat{display:flex;flex-direction:column;gap:2px;}
+  .val-stat .label{font-size:11px;color:var(--ink);opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .val-stat .value{font-size:14.5px;font-weight:700;}
+
+  .bank-actions{
+    display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-top:4px;
+  }
+  .bank-chip{
+    flex:0 0 auto;
+    background:#FBF6E3;
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius-md);
+    padding:8px 12px;
+    font-size:12px;font-weight:600;
+    display:flex;flex-direction:column;gap:2px;
+    min-width:120px;
+  }
+  .bank-chip .bank-name{font-weight:700;font-size:12.5px;}
+  .bank-chip .bank-action{font-size:11.5px;color:var(--ink);opacity:0.65;}
+  .bank-chip.up{border-left:4px solid var(--up);}
+  .bank-chip.down{border-left:4px solid var(--down);}
+  .bank-chip.flat{border-left:4px solid var(--ink);}
+
+  /* Macro section */
+  .macro-wrap{
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-xl);
+    box-shadow:var(--shadow-lg);
+    padding:26px;
+    margin-bottom:36px;
+  }
+  .indicator-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:12px;
+  }
+  .indicator-card{
+    background:#FBF6E3;
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+  }
+  .indicator-card .i-label{font-size:11.5px;color:var(--ink);opacity:0.6;font-weight:700;line-height:1.3;margin-bottom:6px;}
+  .indicator-card .i-value{font-size:20px;font-weight:800;letter-spacing:-0.01em;}
+  .indicator-card .i-date{font-size:10.5px;color:var(--ink);opacity:0.5;font-weight:600;margin-top:2px;}
+  .indicator-card.na .i-value{color:var(--ink);opacity:0.4;font-size:13px;font-weight:700;}
+
+  .earnings-list{display:flex;flex-direction:column;gap:8px;}
+  .earnings-row{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    background:#FBF6E3;border:1.5px solid var(--ink);border-radius:var(--radius-md);padding:12px 16px;
+  }
+  .earnings-row .er-name{font-weight:700;font-size:13.5px;min-width:150px;}
+  .earnings-row .er-symbol{color:var(--ink);opacity:0.55;font-weight:700;font-size:11.5px;}
+  .earnings-row .er-detail{font-size:12.5px;color:var(--ink);opacity:0.65;font-weight:600;}
+  .surprise-badge{
+    font-size:11px;font-weight:800;padding:4px 10px;border-radius:var(--radius-pill);
+    border:1.5px solid var(--ink);
+  }
+  .surprise-badge.up{background:rgba(30,201,138,0.15);color:var(--up);}
+  .surprise-badge.down{background:rgba(255,92,122,0.15);color:var(--down);}
+  .surprise-badge.flat{background:rgba(139,140,163,0.15);color:var(--ink-dim);}
+
+  .events-list{display:flex;flex-direction:column;gap:10px;}
+  .event-row{
+    display:flex;align-items:center;gap:14px;
+    background:#FBF6E3;border:1.5px solid var(--ink);border-radius:var(--radius-md);padding:12px 16px;
+  }
+  .event-date{
+    min-width:64px;text-align:center;font-weight:800;font-size:12.5px;
+    background:var(--panel);border:1.5px solid var(--ink);border-radius:10px;padding:6px 4px;
+  }
+  .event-body .event-title{font-weight:700;font-size:13.5px;}
+  .event-body .event-desc{font-size:12px;color:var(--ink);opacity:0.6;font-weight:600;}
+
+  .questions-card{
+    background:var(--c-yellow);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    box-shadow:var(--shadow-sm);
+  }
+  .questions-card ol{margin:0;padding-left:20px;}
+  .questions-card li{font-size:13.5px;font-weight:700;line-height:1.8;}
+
+  footer{
+    max-width:1080px;margin:40px auto 0;padding:0 22px;
+    color:var(--ink);opacity:0.6;font-size:12.5px;text-align:center;font-weight:600;
+  }
+
+  /* Settings modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(20,21,26,0.55);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-xl);
+    padding:28px;
+    max-width:440px;width:100%;
+    box-shadow:8px 8px 0 var(--ink);
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modal h3{margin:0 0 6px;font-size:20px;font-weight:800;}
+  .modal p.hint{color:var(--ink);opacity:0.65;font-size:13px;margin:0 0 20px;font-weight:600;line-height:1.5;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;}
+  .field input, .field select{
+    width:100%;
+    background:#FBF6E3;
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius-md);
+    padding:11px 14px;
+    font-family:inherit;font-size:13.5px;
+    outline:none;
+  }
+  .field input:focus, .field select:focus{border-color:var(--c-indigo-ink);border-width:2px;}
+  .field .small{font-size:11.5px;color:var(--ink);opacity:0.6;margin-top:5px;font-weight:600;}
+  .modal-actions{display:flex;gap:10px;margin-top:22px;}
+  .modal-actions button{flex:1;padding:12px;border-radius:var(--radius-pill);font-weight:800;font-size:13.5px;border:var(--border-w) solid var(--ink);cursor:pointer;transition:transform .1s, box-shadow .1s;}
+  .btn-cancel{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm);}
+  .btn-cancel:active{transform:translate(2px,2px);box-shadow:none;}
+  .btn-save{background:var(--c-yellow);color:var(--ink);box-shadow:var(--shadow-sm);}
+  .btn-save:active{transform:translate(2px,2px);box-shadow:none;}
+
+  @media (max-width:640px){
+    h1{font-size:27px;}
+    .search-row{flex-direction:row;}
+    .val-card{flex-direction:column;align-items:flex-start;}
+    .earnings-row{flex-direction:column;align-items:flex-start;}
+  }
+
+  /* Lock screen */
+  .lock-overlay{ background:var(--bg); z-index:200; }
+  .lock-card{
+    background:var(--panel);
+    border:var(--border-w) solid var(--ink);
+    border-radius:var(--radius-xl);
+    box-shadow:8px 8px 0 var(--ink);
+    padding:32px;
+    max-width:380px;
+    width:100%;
+    text-align:center;
+  }
+  .lock-card .lock-icon{
+    width:56px;height:56px;border-radius:16px;
+    background:var(--c-yellow);
+    border:var(--border-w) solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;margin:0 auto 16px;
+  }
+  .lock-card h3{margin:0 0 6px;font-size:20px;font-weight:800;}
+  .lock-card p.hint{color:var(--ink);opacity:0.65;font-size:13px;margin:0 0 20px;font-weight:600;line-height:1.5;}
+  .lock-card .field{text-align:left;}
+  .lock-card .lock-error{
+    color:var(--down);font-size:12.5px;font-weight:700;margin-top:-8px;margin-bottom:14px;min-height:16px;
+  }
+  .lock-card button.btn-unlock{
+    width:100%;padding:13px;border-radius:var(--radius-pill);
+    background:var(--c-yellow);color:var(--ink);
+    font-weight:800;font-size:14px;
+    border:var(--border-w) solid var(--ink);cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    transition:transform .1s, box-shadow .1s;
+  }
+  .lock-card button.btn-unlock:active{transform:translate(2px,2px);box-shadow:none;}
+  .lock-shake{animation:shake .35s;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);}
+    20%,80%{transform:translateX(4px);}
+    30%,50%,70%{transform:translateX(-6px);}
+    40%,60%{transform:translateX(6px);}
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay lock-overlay open" id="lockOverlay">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <h3 id="lockTitle">Mi Cartera</h3>
+    <p class="hint" id="lockHint">Ingresa tu contraseña para continuar.</p>
+    <form id="lockForm" autocomplete="off">
+      <div class="field">
+        <label id="lockLabel1">Contraseña</label>
+        <input type="password" id="lockPasswordInput" autocomplete="current-password" required>
+      </div>
+      <div class="field" id="lockConfirmField" style="display:none;">
+        <label>Confirmar contraseña</label>
+        <input type="password" id="lockPasswordConfirm" autocomplete="new-password">
+      </div>
+      <div class="lock-error" id="lockError"></div>
+      <button type="submit" class="btn-unlock" id="lockSubmitBtn">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+
+<div class="topbar">
+  <button class="icon-btn" title="Menú">☰</button>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="settingsBtn" title="Configurar claves de API">⚙️</button>
+    <button class="icon-btn" id="notifyBtn" title="Activar avisos cuando haya noticias nuevas">🔕</button>
+    <button class="icon-btn" id="refreshBtn" title="Actualizar todo">↻</button>
+    <button class="icon-btn" title="Perfil">👤</button>
+  </div>
+</div>
+
+<header class="hero">
+  <h1>Mi Cartera</h1>
+  <p class="subtitle">Noticias, valuación de mercado y panorama macro de cada empresa de tu portafolio.</p>
+</header>
+
+<div class="container">
+
+  <form class="search-row" id="addForm">
+    <div class="search-pill">
+      <span class="icon">🔍</span>
+      <input type="text" id="companyInput" placeholder="Añadir empresa o ticker (ej. Nvidia, TSMC, Shell)" autocomplete="off">
+    </div>
+    <button type="submit" class="add-btn" title="Añadir">+</button>
+  </form>
+
+  <div class="status-bar">
+    <span id="statusText"><span class="dot"></span>Listo</span>
+    <span id="countText"></span>
+  </div>
+
+  <div class="section-title">Tu cartera</div>
+  <div class="portfolio-grid" id="chips"></div>
+
+  <div class="section-title">Panorama macro</div>
+  <div class="macro-wrap" id="macroWrap"></div>
+
+  <div class="section-title">Noticias por empresa</div>
+  <div id="content"></div>
+
+</div>
+
+<footer>
+  Noticias vía Google News · Datos de mercado y resultados vía Finnhub · Indicadores macro vía FRED (Fed de San Luis)<br>
+  Tus claves de API y tu cartera se guardan solo en este navegador, nunca pasan por ningún servidor intermedio.
+</footer>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <h3>Configuración</h3>
+    <p class="hint">Estas claves se guardan únicamente en el almacenamiento local de tu navegador. Las llamadas se hacen directo desde tu navegador a Finnhub y FRED.</p>
+
+    <div class="field">
+      <label>Clave de API de Finnhub</label>
+      <input type="password" id="finnhubKeyInput" placeholder="Tu API key gratuita">
+      <div class="small">Regístrate gratis en finnhub.io/register · precio, valuación de bancos y resultados.</div>
+    </div>
+    <div class="field">
+      <label>Clave de API de FRED</label>
+      <input type="password" id="fredKeyInput" placeholder="Tu API key gratuita">
+      <div class="small">Regístrate gratis en fred.stlouisfed.org/docs/api/api_key.html · indicadores macro (CPI, PCE, tipos, etc).</div>
+    </div>
+
+    <div class="field">
+      <label>Cambiar contraseña de acceso</label>
+      <input type="password" id="newPasswordInput" placeholder="Nueva contraseña (dejar en blanco para no cambiar)" autocomplete="new-password">
+      <div class="small">Se pide para entrar a la app en este navegador. Mínimo 4 caracteres.</div>
+    </div>
+    <div class="field">
+      <button type="button" class="pill-btn" id="removePasswordBtn" style="width:100%;justify-content:center;">🔓 Quitar contraseña</button>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" id="closeSettingsBtn">Cerrar</button>
+      <button type="button" class="btn-save" id="saveSettingsBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'mi-cartera-companies';
+const PASSWORD_HASH_KEY = 'mi-cartera-pw-hash';
+const PASSWORD_DISABLED_KEY = 'mi-cartera-pw-disabled';
+const UNLOCKED_SESSION_KEY = 'mi-cartera-unlocked';
+const FILTER_KEY = 'mi-cartera-filter';
+const TICKER_KEY = 'mi-cartera-tickers';
+const FINNHUB_KEY_STORE = 'mi-cartera-finnhub-key';
+const FRED_KEY_STORE = 'mi-cartera-fred-key';
+
+const DEFAULT_PORTFOLIO = [
+  'TSMC', 'Nvidia', 'ASML', 'Broadcom', 'CrowdStrike',
+  'Palantir', 'Shell', 'ServiceNow', 'Constellation Energy'
+];
+
+const TICKER_MAP_DEFAULT = {
+  'tsmc':'TSM', 'nvidia':'NVDA', 'asml':'ASML', 'broadcom':'AVGO',
+  'crowdstrike':'CRWD', 'palantir':'PLTR', 'shell':'SHEL',
+  'servicenow':'NOW', 'constellation energy':'CEG', 'byd':'BYDDY'
+};
+
+const PALETTE = [
+  { bg:'var(--c-indigo)' },
+  { bg:'var(--c-pink)' },
+  { bg:'var(--c-teal)' },
+  { bg:'var(--c-orange)' },
+  { bg:'var(--c-purple)' },
+  { bg:'var(--c-yellow)' }
+];
+const TAG_COLORS = [
+  { bg:'rgba(77,77,224,0.14)', ink:'var(--c-indigo-ink)' },
+  { bg:'rgba(255,143,171,0.20)', ink:'var(--c-pink-ink)' },
+  { bg:'rgba(30,201,183,0.16)', ink:'var(--c-teal-ink)' },
+  { bg:'rgba(255,165,82,0.18)', ink:'var(--c-orange-ink)' },
+  { bg:'rgba(155,126,240,0.16)', ink:'var(--c-purple-ink)' },
+  { bg:'rgba(255,207,92,0.22)', ink:'var(--c-yellow-ink)' }
+];
+
+/* Indicadores macro vía FRED. units: lin=nivel, pc1=% interanual, pch=% mensual, chg=cambio absoluto */
+const INDICATORS = [
+  { id:'CPIAUCSL', label:'Inflación (CPI interanual)', units:'pc1', suffix:'%', group:'us' },
+  { id:'CPILFESL', label:'Inflación subyacente (Core CPI)', units:'pc1', suffix:'%', group:'us' },
+  { id:'PCEPI', label:'PCE (interanual)', units:'pc1', suffix:'%', group:'us' },
+  { id:'PCEPILFE', label:'PCE subyacente (Core PCE)', units:'pc1', suffix:'%', group:'us' },
+  { id:'UNRATE', label:'Tasa de desempleo', units:'lin', suffix:'%', group:'us' },
+  { id:'PAYEMS', label:'Nóminas no agrícolas (var. mensual)', units:'chg', suffix:'k', group:'us' },
+  { id:'CES0500000003', label:'Crecimiento salarial (interanual)', units:'pc1', suffix:'%', group:'us' },
+  { id:'A191RL1Q225SBEA', label:'PIB (var. trimestral anualizada)', units:'lin', suffix:'%', group:'us' },
+  { id:'RSAFS', label:'Ventas minoristas (var. mensual)', units:'pch', suffix:'%', group:'us' },
+  { id:'UMCSENT', label:'Confianza consumidor (U. Michigan)', units:'lin', suffix:'', group:'us' },
+  { id:'DFEDTARU', label:'Tipos Fed (límite superior)', units:'lin', suffix:'%', group:'us' },
+  { id:'DFEDTARL', label:'Tipos Fed (límite inferior)', units:'lin', suffix:'%', group:'us' },
+  { id:'DGS10', label:'Bono EE.UU. 10 años', units:'lin', suffix:'%', group:'market' },
+  { id:'DGS2', label:'Bono EE.UU. 2 años', units:'lin', suffix:'%', group:'market' },
+  { id:'DTWEXBGS', label:'Índice del dólar (ponderado, Fed)', units:'lin', suffix:'', group:'market' },
+  { id:'VIXCLS', label:'VIX (índice del miedo)', units:'lin', suffix:'', group:'market' },
+  { id:'M2SL', label:'Oferta monetaria M2 (interanual)', units:'pc1', suffix:'%', group:'market' },
+
+  { id:'CP0000EZ19M086NEST', label:'Inflación Zona Euro (HICP interanual)', units:'pc1', suffix:'%', group:'europe' },
+  { id:'LRHUTTTTEZM156S', label:'Tasa de desempleo Zona Euro', units:'lin', suffix:'%', group:'europe' },
+  { id:'ECBDFR', label:'Tipo de depósito del BCE', units:'lin', suffix:'%', group:'europe' },
+  { id:'IRLTLT01EZM156N', label:'Bono Zona Euro 10 años', units:'lin', suffix:'%', group:'europe' },
+  { id:'DEXUSEU', label:'Tipo de cambio EUR/USD', units:'lin', suffix:'', group:'europe' },
+
+  { id:'NIKKEI225', label:'Índice Nikkei 225 (Japón)', units:'lin', suffix:'', group:'asia' },
+  { id:'JPNCPIALLMINMEI', label:'Inflación Japón (interanual)', units:'pc1', suffix:'%', group:'asia' },
+  { id:'CHNCPIALLMINMEI', label:'Inflación China (interanual)', units:'pc1', suffix:'%', group:'asia' },
+  { id:'DEXJPUS', label:'Tipo de cambio USD/JPY', units:'lin', suffix:'', group:'asia' },
+  { id:'DEXCHUS', label:'Tipo de cambio USD/CNY', units:'lin', suffix:'', group:'asia' }
+];
+
+const EARNINGS_WATCHLIST = [
+  { name:'Nvidia', symbol:'NVDA' },
+  { name:'TSMC', symbol:'TSM' },
+  { name:'ASML', symbol:'ASML' },
+  { name:'Broadcom', symbol:'AVGO' },
+  { name:'Palantir', symbol:'PLTR' },
+  { name:'CrowdStrike', symbol:'CRWD' },
+  { name:'ServiceNow', symbol:'NOW' },
+  { name:'Constellation Energy', symbol:'CEG' },
+  { name:'Microsoft', symbol:'MSFT' },
+  { name:'Amazon', symbol:'AMZN' },
+  { name:'Alphabet', symbol:'GOOGL' },
+  { name:'Meta', symbol:'META' }
+];
+
+// Reuniones del FOMC en 2026 (calendario oficial de la Fed). hasSEP = incluye Dot Plot / proyecciones.
+const FOMC_2026 = [
+  { start:'2026-01-27', end:'2026-01-28', hasSEP:false },
+  { start:'2026-03-17', end:'2026-03-18', hasSEP:true },
+  { start:'2026-04-28', end:'2026-04-29', hasSEP:false },
+  { start:'2026-06-16', end:'2026-06-17', hasSEP:true },
+  { start:'2026-07-28', end:'2026-07-29', hasSEP:false },
+  { start:'2026-09-15', end:'2026-09-16', hasSEP:true },
+  { start:'2026-10-27', end:'2026-10-28', hasSEP:false },
+  { start:'2026-12-08', end:'2026-12-09', hasSEP:true }
+];
+// Próximas publicaciones ya confirmadas (BLS / BEA). Se complementan con estimaciones recurrentes.
+const CONFIRMED_RELEASES = [
+  { date:'2026-08-07', title:'Nóminas no agrícolas (NFP)', desc:'Informe de empleo de julio · BLS' },
+  { date:'2026-08-12', title:'CPI', desc:'Inflación de julio · BLS' },
+  { date:'2026-08-26', title:'PCE', desc:'Gasto e ingresos personales de julio · BEA' },
+  { date:'2026-09-04', title:'Nóminas no agrícolas (NFP)', desc:'Informe de empleo de agosto · BLS' },
+  { date:'2026-10-02', title:'Nóminas no agrícolas (NFP)', desc:'Informe de empleo de septiembre · BLS' }
+];
+
+let companies = loadCompanies();
+let activeFilter = localStorage.getItem(FILTER_KEY) || 'all';
+let newsCache = {};      // { companyName: [ {title, link, pubDate, source} ] }
+let newsError = {};      // { companyName: true }
+let marketCache = {};    // { companyName: { symbol, quote, profile, target, actions } }
+let marketError = {};    // { companyName: true }
+
+/* Persistencia: siempre queda a la vista el último dato conocido al abrir la app;
+   se refresca solo en segundo plano cuando ya pasó el tiempo de vigencia (o se fuerza). */
+const NEWS_CACHE_KEY = 'mi-cartera-news-cache';
+const NEWS_CACHE_TTL_MS = 20 * 60 * 1000; // 20 min
+let newsCacheSavedAt = 0;
+function restoreNewsCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY) || 'null');
+    if(raw && raw.data && typeof raw.savedAt === 'number'){ newsCache = raw.data; newsCacheSavedAt = raw.savedAt; }
+  }catch(e){}
+}
+function saveNewsCacheToStorage(){
+  newsCacheSavedAt = Date.now();
+  try{ localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ data: newsCache, savedAt: newsCacheSavedAt })); }catch(e){}
+}
+function newsCacheStale(){ return (Date.now() - newsCacheSavedAt) > NEWS_CACHE_TTL_MS; }
+
+const MARKET_CACHE_KEY = 'mi-cartera-market-cache';
+const MARKET_CACHE_TTL_MS = 5 * 60 * 1000; // 5 min: el precio se mueve rápido en horario de mercado
+let marketCacheSavedAt = 0;
+function restoreMarketCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(MARKET_CACHE_KEY) || 'null');
+    if(raw && raw.data && typeof raw.savedAt === 'number'){ marketCache = raw.data; marketCacheSavedAt = raw.savedAt; }
+  }catch(e){}
+}
+function saveMarketCacheToStorage(){
+  marketCacheSavedAt = Date.now();
+  try{ localStorage.setItem(MARKET_CACHE_KEY, JSON.stringify({ data: marketCache, savedAt: marketCacheSavedAt })); }catch(e){}
+}
+function marketCacheStale(){ return (Date.now() - marketCacheSavedAt) > MARKET_CACHE_TTL_MS; }
+
+restoreNewsCache();
+restoreMarketCache();
+
+/* Aviso de noticias nuevas: recordamos qué links ya vimos por empresa para poder detectar
+   cuáles son nuevos en cada actualización, sin repetir aviso por los mismos artículos. */
+const SEEN_NEWS_KEY = 'mi-cartera-seen-news-links';
+const UNREAD_NEWS_KEY = 'mi-cartera-unread-news';
+const NOTIFY_ENABLED_KEY = 'mi-cartera-notify-enabled';
+
+let seenNewsLinks = {}; // { company: [link, ...] }
+try{ seenNewsLinks = JSON.parse(localStorage.getItem(SEEN_NEWS_KEY) || '{}'); }catch(e){ seenNewsLinks = {}; }
+function saveSeenNewsLinks(){ try{ localStorage.setItem(SEEN_NEWS_KEY, JSON.stringify(seenNewsLinks)); }catch(e){} }
+
+let unreadNewsCompanies = new Set();
+try{
+  const rawUnread = JSON.parse(localStorage.getItem(UNREAD_NEWS_KEY) || '[]');
+  if(Array.isArray(rawUnread)) unreadNewsCompanies = new Set(rawUnread);
+}catch(e){}
+function saveUnreadNewsCompanies(){ try{ localStorage.setItem(UNREAD_NEWS_KEY, JSON.stringify([...unreadNewsCompanies])); }catch(e){} }
+
+function notifyEnabled(){ return localStorage.getItem(NOTIFY_ENABLED_KEY) === '1'; }
+
+/* Compara lo que llegó contra lo último que vimos de esa empresa. Si hay artículos nuevos
+   (y no es la primera vez que la revisamos, para no avisar de todo el historial de una),
+   prende el punto rojo en su tarjeta y, si el usuario activó el 🔔, dispara una notificación
+   del navegador. */
+function registerNewsUpdate(company, items){
+  if(!items || !items.length) return;
+  const existing = seenNewsLinks[company];
+  const isFirstEverCheck = !existing;
+  const prevSeen = new Set(existing || []);
+  const freshItems = items.filter(it => it.link && !prevSeen.has(it.link));
+
+  const merged = [...new Set([...(existing || []), ...items.map(it=>it.link).filter(Boolean)])].slice(-40);
+  seenNewsLinks[company] = merged;
+  saveSeenNewsLinks();
+
+  if(isFirstEverCheck || freshItems.length === 0) return;
+
+  unreadNewsCompanies.add(company);
+  saveUnreadNewsCompanies();
+  renderChips();
+
+  if(notifyEnabled() && 'Notification' in window && Notification.permission === 'granted'){
+    try{
+      const n = new Notification(
+        freshItems.length === 1 ? `Noticia nueva de ${company}` : `${freshItems.length} noticias nuevas de ${company}`,
+        { body: freshItems[0].title, tag: 'mi-cartera-news-' + company }
+      );
+      n.onclick = () => { window.focus(); };
+    }catch(e){}
+  }
+}
+
+function updateNotifyBtnUI(){
+  const btn = document.getElementById('notifyBtn');
+  if(!btn) return;
+  const supported = 'Notification' in window;
+  const on = supported && notifyEnabled() && Notification.permission === 'granted';
+  btn.textContent = on ? '🔔' : '🔕';
+  btn.title = !supported
+    ? 'Tu navegador no soporta notificaciones'
+    : (on ? 'Avisos activados (click para desactivar)' : 'Activar avisos cuando haya noticias nuevas');
+  btn.style.background = on ? 'var(--c-yellow)' : '';
+}
+
+let tickerCache = {};
+const HIDDEN_NEWS_KEY = 'mi-cartera-hidden-news';
+let hiddenFromNews = new Set();
+try{
+  const rawHidden = JSON.parse(localStorage.getItem(HIDDEN_NEWS_KEY) || '[]');
+  if(Array.isArray(rawHidden)) hiddenFromNews = new Set(rawHidden);
+}catch(e){}
+function saveHiddenFromNews(){ localStorage.setItem(HIDDEN_NEWS_KEY, JSON.stringify([...hiddenFromNews])); }
+function hideFromNews(name){
+  hiddenFromNews.add(name);
+  saveHiddenFromNews();
+  renderContent();
+}
+function unhideFromNews(name){
+  hiddenFromNews.delete(name);
+  saveHiddenFromNews();
+  renderContent();
+}
+function showAllInNews(){
+  hiddenFromNews.clear();
+  saveHiddenFromNews();
+  renderContent();
+}
+try{ tickerCache = JSON.parse(localStorage.getItem(TICKER_KEY) || '{}'); }catch(e){ tickerCache = {}; }
+
+const MACRO_CACHE_KEY = 'mi-cartera-macro-cache';
+const MACRO_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min: pasado esto, se refresca en segundo plano
+
+let macroCache = {};     // { seriesId: { value, date } }
+let macroCacheSavedAt = 0;
+let macroLoading = false;
+let macroLoaded = false;
+let macroHasError = false;
+
+/* Restaura el último panorama macro guardado para que se vea al instante al abrir la app,
+   mientras loadMacro() refresca en segundo plano si ya está vencido. */
+function restoreMacroCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(MACRO_CACHE_KEY) || 'null');
+    if(raw && raw.data && typeof raw.savedAt === 'number' && Object.keys(raw.data).length){
+      macroCache = raw.data;
+      macroCacheSavedAt = raw.savedAt;
+      macroLoaded = true;
+    }
+  }catch(e){}
+}
+function saveMacroCacheToStorage(){
+  macroCacheSavedAt = Date.now();
+  try{ localStorage.setItem(MACRO_CACHE_KEY, JSON.stringify({ data: macroCache, savedAt: macroCacheSavedAt })); }catch(e){}
+}
+restoreMacroCache();
+
+let earningsCache = {};  // { symbol: { last, next } }
+let earningsLoading = false;
+let earningsVisible = false;
+
+const EARNINGS_CACHE_KEY = 'mi-cartera-earnings-cache';
+const EARNINGS_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hora: los resultados no cambian tan seguido
+let earningsCacheSavedAt = 0;
+function restoreEarningsCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(EARNINGS_CACHE_KEY) || 'null');
+    if(raw && raw.data && typeof raw.savedAt === 'number'){ earningsCache = raw.data; earningsCacheSavedAt = raw.savedAt; }
+  }catch(e){}
+}
+function saveEarningsCacheToStorage(){
+  earningsCacheSavedAt = Date.now();
+  try{ localStorage.setItem(EARNINGS_CACHE_KEY, JSON.stringify({ data: earningsCache, savedAt: earningsCacheSavedAt })); }catch(e){}
+}
+function earningsCacheStale(){ return (Date.now() - earningsCacheSavedAt) > EARNINGS_CACHE_TTL_MS; }
+restoreEarningsCache();
+
+let macroSectionsOpen = { us:true, market:true, europe:true, asia:true, geo:true, events:true, questions:true };
+function toggleMacroSection(key){
+  macroSectionsOpen[key] = !macroSectionsOpen[key];
+  renderMacro();
+}
+
+let geoNews = null;
+let geoNewsError = false;
+let geoNewsLoading = false;
+
+const GEO_NEWS_CACHE_KEY = 'mi-cartera-geo-news-cache';
+const GEO_NEWS_CACHE_TTL_MS = 20 * 60 * 1000; // 20 min
+let geoNewsSavedAt = 0;
+function restoreGeoNewsCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(GEO_NEWS_CACHE_KEY) || 'null');
+    if(raw && Array.isArray(raw.data) && typeof raw.savedAt === 'number'){ geoNews = raw.data; geoNewsSavedAt = raw.savedAt; }
+  }catch(e){}
+}
+function saveGeoNewsCacheToStorage(){
+  geoNewsSavedAt = Date.now();
+  try{ localStorage.setItem(GEO_NEWS_CACHE_KEY, JSON.stringify({ data: geoNews, savedAt: geoNewsSavedAt })); }catch(e){}
+}
+function geoNewsCacheStale(){ return (Date.now() - geoNewsSavedAt) > GEO_NEWS_CACHE_TTL_MS; }
+restoreGeoNewsCache();
+
+function loadCompanies(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  }catch(e){}
+  return [...DEFAULT_PORTFOLIO];
+}
+function saveCompanies(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(companies)); }
+function saveTickerCache(){ localStorage.setItem(TICKER_KEY, JSON.stringify(tickerCache)); }
+
+function getFinnhubKey(){ return localStorage.getItem(FINNHUB_KEY_STORE) || ''; }
+function getFredKey(){ return localStorage.getItem(FRED_KEY_STORE) || ''; }
+
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+function colorFor(name){
+  const idx = companies.indexOf(name);
+  return PALETTE[(idx === -1 ? 0 : idx) % PALETTE.length];
+}
+function tagColorFor(name){
+  const idx = companies.indexOf(name);
+  return TAG_COLORS[(idx === -1 ? 0 : idx) % TAG_COLORS.length];
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function escJs(str){ return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+/* ---------------- Contraseña de acceso ---------------- */
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function initApp(){
+  renderChips();
+  renderMacro();
+  loadAllNews(false);
+}
+
+function unlockApp(){
+  document.getElementById('lockOverlay').classList.remove('open');
+  document.getElementById('appRoot').style.display = '';
+  try{ sessionStorage.setItem(UNLOCKED_SESSION_KEY, '1'); }catch(e){}
+  initApp();
+}
+
+function setupLockScreen(){
+  const storedHash = localStorage.getItem(PASSWORD_HASH_KEY);
+
+  if(!storedHash && localStorage.getItem(PASSWORD_DISABLED_KEY) === '1'){
+    document.getElementById('lockOverlay').classList.remove('open');
+    document.getElementById('appRoot').style.display = '';
+    initApp();
+    return;
+  }
+
+  const title = document.getElementById('lockTitle');
+  const hint = document.getElementById('lockHint');
+  const label1 = document.getElementById('lockLabel1');
+  const confirmField = document.getElementById('lockConfirmField');
+  const submitBtn = document.getElementById('lockSubmitBtn');
+  const errorEl = document.getElementById('lockError');
+  const pwInput = document.getElementById('lockPasswordInput');
+  const confirmInput = document.getElementById('lockPasswordConfirm');
+  const isSetup = !storedHash;
+
+  if(isSetup){
+    title.textContent = 'Crea una contraseña';
+    hint.textContent = 'Protege el acceso a esta app en este navegador.';
+    label1.textContent = 'Nueva contraseña';
+    confirmField.style.display = '';
+    submitBtn.textContent = 'Crear y entrar';
+    pwInput.setAttribute('autocomplete','new-password');
+  } else {
+    let alreadyUnlocked = false;
+    try{ alreadyUnlocked = sessionStorage.getItem(UNLOCKED_SESSION_KEY) === '1'; }catch(e){}
+    if(alreadyUnlocked){ unlockApp(); return; }
+  }
+
+  document.getElementById('lockForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    errorEl.textContent = '';
+    const pw = pwInput.value;
+    if(!pw) return;
+
+    if(isSetup){
+      const confirmPw = confirmInput.value;
+      if(pw.length < 4){ errorEl.textContent = 'Usa al menos 4 caracteres.'; return; }
+      if(pw !== confirmPw){
+        errorEl.textContent = 'Las contraseñas no coinciden.';
+        confirmInput.value = '';
+        return;
+      }
+      const hash = await sha256Hex(pw);
+      localStorage.setItem(PASSWORD_HASH_KEY, hash);
+      unlockApp();
+    } else {
+      const hash = await sha256Hex(pw);
+      if(hash === storedHash){
+        unlockApp();
+      } else {
+        errorEl.textContent = 'Contraseña incorrecta.';
+        pwInput.value = '';
+        pwInput.focus();
+        const card = document.querySelector('.lock-card');
+        card.classList.remove('lock-shake');
+        void card.offsetWidth;
+        card.classList.add('lock-shake');
+      }
+    }
+  });
+
+  pwInput.focus();
+}
+
+function setStatus(text, busy){
+  const el = document.getElementById('statusText');
+  el.innerHTML = `<span class="dot" style="background:${busy ? 'var(--c-orange)' : 'var(--c-teal)'}"></span>${text}`;
+}
+function timeAgo(dateStr){
+  const d = new Date(dateStr);
+  if(isNaN(d)) return '';
+  const diffMs = Date.now() - d.getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return `hace ${hrs} h`;
+  const days = Math.floor(hrs/24);
+  return `hace ${days} d`;
+}
+function fmtNum(n, decimals){
+  if(n === undefined || n === null || isNaN(n)) return '—';
+  return Number(n).toLocaleString('es-ES', { maximumFractionDigits: decimals ?? 2, minimumFractionDigits: 0 });
+}
+function fmtMarketCap(m){
+  if(m === undefined || m === null || isNaN(m)) return '—';
+  if(m >= 1e6) return (m/1e6).toFixed(2) + 'T';
+  if(m >= 1e3) return (m/1e3).toFixed(1) + 'B';
+  return m.toFixed(0) + 'M';
+}
+function fmtDate(d){
+  const dt = new Date(d + 'T00:00:00');
+  if(isNaN(dt)) return d;
+  return dt.toLocaleDateString('es-ES', { day:'2-digit', month:'short' });
+}
+function toLocalISO(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function fetchWithTimeout(url, ms, options){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), ms);
+  return fetch(url, Object.assign({}, options || {}, { signal: controller.signal })).finally(()=>clearTimeout(timer));
+}
+
+/* Proxy genérico para APIs que no permiten CORS directo desde el navegador (ej. FRED).
+   Lanza varios proxies gratuitos en paralelo y usa el que responda primero (Promise.any),
+   en vez de probarlos uno por uno. Tres candidatos en la carrera en vez de dos sube la
+   probabilidad de que al menos uno conteste rápido cuando otro está lento o caído. */
+async function fetchViaProxy(targetUrl){
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+  ];
+  const attempts = proxies.map(async p=>{
+    const res = await fetchWithTimeout(p, 8000);
+    if(!res.ok) throw new Error('http ' + res.status);
+    return await res.json();
+  });
+  try{
+    return await Promise.any(attempts);
+  }catch(e){
+    throw (e && e.errors && e.errors[0]) || new Error('proxy failed');
+  }
+}
+
+/* ---------------- Portfolio cards ---------------- */
+
+function removeCompanyFromNews(name){
+  companies = companies.filter(c=>c!==name);
+  delete newsCache[name]; delete newsError[name];
+  delete marketCache[name]; delete marketError[name];
+  saveCompanies();
+  saveNewsCacheToStorage();
+  saveMarketCacheToStorage();
+  if(activeFilter === name) activeFilter = 'all';
+  renderChips();
+  renderContent();
+}
+
+function renderChips(){
+  const chips = document.getElementById('chips');
+  chips.innerHTML = '';
+
+  const allCard = document.createElement('button');
+  allCard.type = 'button';
+  allCard.className = 'p-card all-card' + (activeFilter === 'all' ? ' selected' : '');
+  allCard.dataset.filter = 'all';
+  allCard.innerHTML = `<span class="badge">☰</span><span class="name">Todas</span>`;
+  chips.appendChild(allCard);
+
+  companies.forEach(name=>{
+    const color = colorFor(name);
+    const market = marketCache[name];
+    const priceLabel = market && market.quote && market.quote.c
+      ? `$${fmtNum(market.quote.c)} <span style="opacity:.85">${market.quote.dp >= 0 ? '▲' : '▼'} ${fmtNum(Math.abs(market.quote.dp),1)}%</span>`
+      : '';
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'p-card' + (activeFilter === name ? ' selected' : '');
+    card.style.setProperty('--tab-color', color.bg);
+    card.dataset.filter = name;
+    card.innerHTML = `
+      <button type="button" class="remove" data-remove="${escapeHtml(name)}" title="Quitar">✕</button>
+      ${unreadNewsCompanies.has(name) ? `<span class="unread-dot" title="Noticias nuevas"></span>` : ''}
+      <span class="badge">${escapeHtml(initials(name))}</span>
+      <div>
+        <div class="name">${escapeHtml(name)}</div>
+        ${priceLabel ? `<div class="price-tag">${priceLabel}</div>` : ''}
+      </div>
+    `;
+    chips.appendChild(card);
+  });
+
+  chips.querySelectorAll('.p-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.remove')) return;
+      activeFilter = card.dataset.filter;
+      localStorage.setItem(FILTER_KEY, activeFilter);
+      if(activeFilter !== 'all' && unreadNewsCompanies.has(activeFilter)){
+        unreadNewsCompanies.delete(activeFilter);
+        saveUnreadNewsCompanies();
+      }
+      renderChips();
+      renderContent();
+    });
+  });
+  chips.querySelectorAll('.remove').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      removeCompanyFromNews(btn.dataset.remove);
+    });
+  });
+}
+
+/* ---------------- Noticias (Google News) ---------------- */
+
+function parseRssXml(text){
+  const xml = new DOMParser().parseFromString(text, 'text/xml');
+  if(xml.querySelector('parsererror')) throw new Error('parse error');
+  return Array.from(xml.querySelectorAll('item')).slice(0, 6).map(item=>{
+    const title = item.querySelector('title')?.textContent || '';
+    const link = item.querySelector('link')?.textContent || '#';
+    const pubDate = item.querySelector('pubDate')?.textContent || '';
+    const sourceEl = item.querySelector('source');
+    const source = sourceEl ? sourceEl.textContent : '';
+    return { title, link, pubDate, source };
+  });
+}
+
+async function fetchGoogleNews(query, limit){
+  // "when:7d" le pide a Google News que solo devuelva resultados de los últimos 7 días.
+  // Sin esto, la búsqueda ordena por relevancia y puede traer artículos viejos (de meses)
+  // si siguen siendo muy citados sobre ese tema — que es justo lo que estaba pasando.
+  const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query + ' when:7d')}&hl=es-419&gl=US&ceid=US:es-419`;
+
+  const sources = [
+    { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+      parse: async (res)=>{
+        const data = await res.json();
+        if(data.status !== 'ok') throw new Error('rss2json error');
+        return (data.items || []).slice(0, limit || 6).map(it=>({
+          title: it.title || '', link: it.link || '#', pubDate: it.pubDate || '',
+          source: (it.author || (it.title.match(/- (.+)$/)?.[1]) || '')
+        }));
+      }
+    },
+    { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+      parse: async (res)=>parseRssXml(await res.text()) },
+    { url: `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
+      parse: async (res)=>parseRssXml(await res.text()) }
+  ];
+
+  let lastError = null;
+  for(const src of sources){
+    try{
+      const res = await fetchWithTimeout(src.url, 10000);
+      if(!res.ok) throw new Error('http ' + res.status);
+      const items = await src.parse(res);
+      if(items && items.length >= 0) return items.slice(0, limit || 6);
+    }catch(err){ lastError = err; continue; }
+  }
+  throw lastError || new Error('no sources available');
+}
+
+async function fetchNewsFor(company){
+  return fetchGoogleNews(company + ' empresa OR acciones OR stock', 6);
+}
+
+/* ---------------- Mercado (Finnhub) ---------------- */
+
+async function resolveTicker(company){
+  const key = company.trim().toLowerCase();
+  if(tickerCache[key]) return tickerCache[key];
+  if(TICKER_MAP_DEFAULT[key]){ tickerCache[key] = TICKER_MAP_DEFAULT[key]; saveTickerCache(); return TICKER_MAP_DEFAULT[key]; }
+  const finnhubKey = getFinnhubKey();
+  if(!finnhubKey) return null;
+  try{
+    const res = await fetchWithTimeout(`https://finnhub.io/api/v1/search?q=${encodeURIComponent(company)}&token=${finnhubKey}`, 8000);
+    const data = await res.json();
+    const results = data.result || [];
+    const best = results.find(r=>r.type === 'Common Stock') || results[0];
+    if(best && best.symbol){ tickerCache[key] = best.symbol; saveTickerCache(); return best.symbol; }
+  }catch(e){}
+  return null;
+}
+
+async function fetchMarketData(company){
+  const finnhubKey = getFinnhubKey();
+  if(!finnhubKey) throw new Error('no-key');
+  const symbol = await resolveTicker(company);
+  if(!symbol) throw new Error('no-symbol');
+
+  const [quoteR, profileR, targetR, actionsR] = await Promise.allSettled([
+    fetchWithTimeout(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${finnhubKey}`, 8000).then(r=>r.json()),
+    fetchWithTimeout(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${finnhubKey}`, 8000).then(r=>r.json()),
+    fetchWithTimeout(`https://finnhub.io/api/v1/stock/price-target?symbol=${symbol}&token=${finnhubKey}`, 8000).then(r=>r.json()).catch(()=>({})),
+    fetchWithTimeout(`https://finnhub.io/api/v1/stock/upgrade-downgrade?symbol=${symbol}&token=${finnhubKey}`, 8000).then(r=>r.json()).catch(()=>[])
+  ]);
+
+  const quote = quoteR.status === 'fulfilled' ? quoteR.value : {};
+  const profile = profileR.status === 'fulfilled' ? profileR.value : {};
+  const target = targetR.status === 'fulfilled' ? targetR.value : {};
+  const actions = actionsR.status === 'fulfilled' && Array.isArray(actionsR.value) ? actionsR.value.slice(0, 6) : [];
+
+  if(!quote || quote.c === undefined) throw new Error('sin datos de cotización');
+  return { symbol, quote, profile, target, actions };
+}
+
+async function loadMarketFor(company){
+  try{
+    const data = await fetchMarketData(company);
+    marketCache[company] = data;
+    delete marketError[company];
+    saveMarketCacheToStorage();
+  }catch(err){
+    marketError[company] = true;
+  }
+}
+
+async function retryMarket(company){
+  await loadMarketFor(company);
+  renderChips();
+  renderContent();
+}
+
+/* ---------------- Macro (FRED) ---------------- */
+
+async function fetchFredSeries(seriesId, units){
+  const key = getFredKey();
+  if(!key) throw new Error('no-key');
+  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=1&units=${units}`;
+  const data = await fetchViaProxy(url);
+  const obs = (data.observations || [])[0];
+  if(!obs || obs.value === '.') throw new Error('sin datos');
+  return { value: parseFloat(obs.value), date: obs.date };
+}
+
+let macroRenderScheduled = false;
+/* Junta varias resoluciones casi simultáneas en un solo repintado por frame,
+   en vez de reconstruir el panel entero cada vez que llega un indicador suelto. */
+function scheduleMacroRender(){
+  if(macroRenderScheduled) return;
+  macroRenderScheduled = true;
+  requestAnimationFrame(()=>{ macroRenderScheduled = false; renderMacro(); });
+}
+
+/* Procesa la lista con como mucho `concurrency` tareas a la vez, arrancando una nueva
+   apenas se libera un "carril" (sin pausas fijas, pero sin disparar todo junto). Con
+   3 proxies compitiendo por cada indicador, mandar los 27 a la vez significa hasta 81
+   pedidos simultáneos — eso hace que el navegador ponga en cola varios por host y el
+   timeout se cumpla antes de que lleguen a salir, así que varios indicadores terminan
+   fallando o se quedan sin cargar. Con un cupo se evita ese atasco. */
+async function runWithConcurrency(items, worker, concurrency){
+  let idx = 0;
+  const lane = async ()=>{
+    while(idx < items.length){
+      const item = items[idx++];
+      await worker(item);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, lane));
+}
+
+async function loadMacro(force){
+  if(!getFredKey()) { renderMacro(); return; }
+  const isStale = (Date.now() - macroCacheSavedAt) > MACRO_CACHE_TTL_MS;
+  if(macroLoaded && !force && !isStale) { renderMacro(); return; }
+
+  // Si ya tenemos datos (de caché o de una carga previa), refrescamos en segundo plano
+  // sin tapar el panel con el spinner grande — solo la primera carga de la sesión lo muestra.
+  const silent = macroLoaded;
+  if(!silent) macroLoading = true;
+  macroHasError = false;
+  if(!silent) renderMacro();
+
+  let anyFailed = false;
+
+  // Como mucho 6 indicadores en vuelo a la vez (cada uno corre su propia carrera de 3
+  // proxies) — cada tarjeta se pinta apenas llega su dato, sin tandas con pausa fija.
+  await runWithConcurrency(INDICATORS, async (ind)=>{
+    try{
+      macroCache[ind.id] = await fetchFredSeries(ind.id, ind.units);
+    }catch(e){
+      anyFailed = true;
+    }
+    scheduleMacroRender();
+  }, 6);
+
+  macroHasError = anyFailed;
+  macroLoading = false;
+  macroLoaded = true;
+  saveMacroCacheToStorage();
+  renderMacro();
+}
+
+/* ---------------- Resultados empresariales (Finnhub) ---------------- */
+
+async function fetchEarningsFor(symbol){
+  const key = getFinnhubKey();
+  if(!key) throw new Error('no-key');
+  const [histR, calR] = await Promise.allSettled([
+    fetchWithTimeout(`https://finnhub.io/api/v1/stock/earnings?symbol=${symbol}&token=${key}`, 8000).then(r=>r.json()),
+    fetchWithTimeout(`https://finnhub.io/api/v1/calendar/earnings?symbol=${symbol}&token=${key}`, 8000).then(r=>r.json()).catch(()=>({}))
+  ]);
+  const hist = histR.status === 'fulfilled' && Array.isArray(histR.value) ? histR.value : [];
+  const cal = calR.status === 'fulfilled' ? calR.value : {};
+  const today = new Date();
+  const next = (cal.earningsCalendar || [])
+    .filter(e => e.date && new Date(e.date) >= today)
+    .sort((a,b) => new Date(a.date) - new Date(b.date))[0] || null;
+  return { last: hist[0] || null, next };
+}
+
+async function loadEarnings(force){
+  if(!getFinnhubKey()) { renderMacro(); return; }
+  const wasStale = force || earningsCacheStale();
+  earningsLoading = true;
+  renderMacro();
+  await Promise.allSettled(EARNINGS_WATCHLIST.map(async e=>{
+    if(!wasStale && earningsCache[e.symbol]) return;
+    try{
+      earningsCache[e.symbol] = await fetchEarningsFor(e.symbol);
+    }catch(err){
+      earningsCache[e.symbol] = null;
+    }
+  }));
+  earningsLoading = false;
+  saveEarningsCacheToStorage();
+  renderMacro();
+}
+
+function toggleEarnings(){
+  earningsVisible = !earningsVisible;
+  if(earningsVisible){
+    // Con caché ya no hace falta esperar a no tener nada: muestra lo guardado
+    // al instante y refresca solo si venció el tiempo de vigencia.
+    loadEarnings(false);
+  } else {
+    renderMacro();
+  }
+}
+
+/* ---------------- Geopolítica (Google News) ---------------- */
+
+async function loadGeoNews(force){
+  if(geoNews && !force && !geoNewsCacheStale()) { renderMacro(); return; }
+  geoNewsLoading = true;
+  geoNewsError = false;
+  renderMacro();
+  try{
+    geoNews = await fetchGoogleNews('China Taiwan semiconductores aranceles chips exportación', 6);
+    saveGeoNewsCacheToStorage();
+  }catch(err){
+    geoNewsError = true;
+  }
+  geoNewsLoading = false;
+  renderMacro();
+}
+
+/* ---------------- Eventos próximos ---------------- */
+
+function nextFirstFridays(count){
+  const results = [];
+  let d = new Date();
+  d.setHours(0,0,0,0);
+  let cursor = new Date(d.getFullYear(), d.getMonth(), 1);
+  while(results.length < count){
+    const firstFriday = new Date(cursor);
+    while(firstFriday.getDay() !== 5) firstFriday.setDate(firstFriday.getDate()+1);
+    if(firstFriday >= d) results.push(new Date(firstFriday));
+    cursor.setMonth(cursor.getMonth()+1);
+  }
+  return results;
+}
+
+function nextTripleWitching(count){
+  const months = [2,5,8,11]; // marzo, junio, septiembre, diciembre (0-indexed)
+  const results = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  let year = today.getFullYear();
+  while(results.length < count){
+    for(const m of months){
+      const d = new Date(year, m, 1);
+      let fridays = 0;
+      while(fridays < 3){
+        if(d.getDay() === 5) fridays++;
+        if(fridays < 3) d.setDate(d.getDate()+1);
+      }
+      if(d >= today) results.push(new Date(d));
+    }
+    year++;
+  }
+  return results.slice(0, count).sort((a,b)=>a-b);
+}
+
+function getUpcomingEvents(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const events = [];
+
+  FOMC_2026.filter(m => new Date(m.end) >= today).forEach(m=>{
+    events.push({
+      date: m.start,
+      title: 'Reunión FOMC' + (m.hasSEP ? ' + Dot Plot' : ''),
+      desc: 'Decisión de tipos de la Fed' + (m.hasSEP ? ' y nuevas proyecciones económicas' : '')
+    });
+  });
+
+  CONFIRMED_RELEASES.filter(r => new Date(r.date) >= today).forEach(r=>{
+    events.push({ date: r.date, title: r.title, desc: r.desc });
+  });
+
+  nextFirstFridays(2).forEach(d=>{
+    const iso = toLocalISO(d);
+    if(!events.some(e=>e.date === iso)){
+      events.push({ date: iso, title: 'Nóminas no agrícolas (NFP)', desc: 'Estimado: primer viernes del mes · confirma en bls.gov' });
+    }
+  });
+
+  nextTripleWitching(1).forEach(d=>{
+    const iso = toLocalISO(d);
+    events.push({ date: iso, title: 'Triple Witching', desc: 'Vencimiento simultáneo de futuros y opciones · puede aumentar volatilidad' });
+  });
+
+  events.sort((a,b)=> new Date(a.date) - new Date(b.date));
+  return events.slice(0, 8);
+}
+
+/* ---------------- Carga general ---------------- */
+
+async function loadAllNews(force){
+  if(companies.length === 0){ renderContent(); return; }
+  if(!navigator.onLine){
+    setStatus('Sin conexión a internet', false);
+    companies.forEach(c=>{ if(!newsCache[c]) newsError[c] = true; });
+    renderContent();
+    return;
+  }
+
+  setStatus('Cargando noticias y mercado…', true);
+  // Muestra lo que ya tengamos guardado (si lo hay) en vez de tapar todo con un spinner;
+  // renderContent() ya sabe mostrar cada tarjeta con su propio dato en caché o su propio spinner.
+  renderContent();
+
+  const newsWasStale = force || newsCacheStale();
+  const newsResults = await Promise.allSettled(
+    companies.map(async (c)=>{
+      if(!newsWasStale && newsCache[c]) return;
+      try{
+        const items = await fetchNewsFor(c);
+        newsCache[c] = items;
+        delete newsError[c];
+        registerNewsUpdate(c, items);
+      }catch(err){ newsError[c] = true; throw err; }
+    })
+  );
+  saveNewsCacheToStorage();
+
+  if(getFinnhubKey()){
+    const marketWasStale = force || marketCacheStale();
+    await Promise.allSettled(companies.map(c => (!marketWasStale && marketCache[c]) ? Promise.resolve() : loadMarketFor(c)));
+  }
+
+  const failed = newsResults.filter(r=>r.status==='rejected').length;
+  if(failed === companies.length){
+    setStatus('No se pudieron cargar las noticias. Revisa tu conexión.', false);
+  } else if(failed > 0){
+    setStatus(`Actualizado (${failed} empresa(s) fallaron)`, false);
+  } else {
+    setStatus('Actualizado', false);
+  }
+  renderChips();
+  renderContent();
+
+  loadMacro(force);
+  if(earningsVisible) loadEarnings(force);
+  loadGeoNews(force);
+}
+
+async function retryCompany(company){
+  setStatus(`Reintentando ${company}…`, true);
+  try{
+    const items = await fetchNewsFor(company);
+    newsCache[company] = items;
+    delete newsError[company];
+    saveNewsCacheToStorage();
+    registerNewsUpdate(company, items);
+    setStatus('Actualizado', false);
+  }catch(err){
+    newsError[company] = true;
+    setStatus(`No se pudo cargar ${company}`, false);
+  }
+  renderContent();
+}
+
+/* ---------------- Render: valuación por empresa ---------------- */
+
+function renderValuation(company){
+  const market = marketCache[company];
+  if(marketError[company] && !market){
+    if(!getFinnhubKey()){
+      return `<div class="val-card">
+        <div class="empty" style="width:100%;box-shadow:none;background:none;padding:0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <span>Añade tu clave de Finnhub para ver precio y valuación de bancos.</span>
+          <button type="button" class="pill-btn" onclick="openSettings()">⚙️ Configurar</button>
+        </div>
+      </div>`;
+    }
+    return `<div class="val-card">
+      <div class="empty" style="width:100%;box-shadow:none;background:none;padding:0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <span>No se pudo cargar la valuación de ${escapeHtml(company)}.</span>
+        <button type="button" class="pill-btn" onclick="retryMarket('${escJs(company)}')">↻ Reintentar</button>
+      </div>
+    </div>`;
+  }
+  if(!market) return '';
+
+  const q = market.quote || {};
+  const p = market.profile || {};
+  const t = market.target || {};
+  const up = (q.dp ?? 0) >= 0;
+
+  const actionsHtml = (market.actions || []).map(a=>{
+    const cls = a.action === 'up' ? 'up' : (a.action === 'down' ? 'down' : 'flat');
+    const actionLabel = { up:'Subió a', down:'Bajó a', init:'Inicia en', maintain: 'Mantiene', reit: 'Reitera' }[a.action] || a.action || '';
+    return `<div class="bank-chip ${cls}">
+      <span class="bank-name">${escapeHtml(a.company || '')}</span>
+      <span class="bank-action">${escapeHtml(actionLabel)} ${escapeHtml(a.gradeTo || '')}${a.gradeFrom ? ' (antes ' + escapeHtml(a.gradeFrom) + ')' : ''}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="val-card">
+    <div class="val-price">
+      <div class="price">$${fmtNum(q.c)}</div>
+      <div class="change ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${fmtNum(Math.abs(q.d ?? 0))} (${fmtNum(Math.abs(q.dp ?? 0),2)}%)</div>
+    </div>
+    <div class="val-stats">
+      <div class="val-stat"><span class="label">Capitalización</span><span class="value">$${fmtMarketCap(p.marketCapitalization)}</span></div>
+      <div class="val-stat"><span class="label">Precio objetivo (promedio)</span><span class="value">${t.targetMean ? '$'+fmtNum(t.targetMean) : '—'}</span></div>
+      <div class="val-stat"><span class="label">Rango de bancos</span><span class="value">${t.targetLow ? '$'+fmtNum(t.targetLow)+' – $'+fmtNum(t.targetHigh) : '—'}</span></div>
+      <div class="val-stat"><span class="label">Máx / mín del día</span><span class="value">$${fmtNum(q.h)} / $${fmtNum(q.l)}</span></div>
+    </div>
+    ${actionsHtml ? `<div class="bank-actions" style="width:100%">${actionsHtml}</div>` : ''}
+  </div>`;
+}
+
+/* ---------------- Render: panorama macro ---------------- */
+
+function renderIndicatorCard(ind){
+  const data = macroCache[ind.id];
+  if(!data){
+    return `<div class="indicator-card na">
+      <div class="i-label">${escapeHtml(ind.label)}</div>
+      <div class="i-value">—</div>
+    </div>`;
+  }
+  const sign = (ind.units === 'pc1' || ind.units === 'pch' || ind.units === 'chg') && data.value > 0 ? '+' : '';
+  return `<div class="indicator-card">
+    <div class="i-label">${escapeHtml(ind.label)}</div>
+    <div class="i-value">${sign}${fmtNum(data.value)}${ind.suffix}</div>
+    <div class="i-date">${fmtDate(data.date)}</div>
+  </div>`;
+}
+
+function renderEarningsRow(watch){
+  const data = earningsCache[watch.symbol];
+  if(data === undefined){
+    return `<div class="earnings-row">
+      <div><div class="er-name">${escapeHtml(watch.name)} <span class="er-symbol">${escapeHtml(watch.symbol)}</span></div></div>
+      <div class="er-detail">${earningsLoading ? 'Cargando…' : '—'}</div>
+    </div>`;
+  }
+  if(!data){
+    return `<div class="earnings-row">
+      <div><div class="er-name">${escapeHtml(watch.name)} <span class="er-symbol">${escapeHtml(watch.symbol)}</span></div></div>
+      <div class="er-detail">Sin datos disponibles</div>
+    </div>`;
+  }
+  const last = data.last;
+  const next = data.next;
+  let surpriseHtml = '';
+  if(last && last.surprisePercent !== undefined && last.surprisePercent !== null){
+    const cls = last.surprisePercent > 0.5 ? 'up' : (last.surprisePercent < -0.5 ? 'down' : 'flat');
+    const sign = last.surprisePercent > 0 ? '+' : '';
+    surpriseHtml = `<span class="surprise-badge ${cls}">EPS ${sign}${fmtNum(last.surprisePercent,1)}% vs. estimado</span>`;
+  }
+  const nextLabel = next ? `Próximo informe: ${fmtDate(next.date)}` : (last ? `Último informe: ${fmtDate(last.period)}` : 'Fecha por confirmar');
+  return `<div class="earnings-row">
+    <div><div class="er-name">${escapeHtml(watch.name)} <span class="er-symbol">${escapeHtml(watch.symbol)}</span></div>
+      <div class="er-detail">${nextLabel}</div>
+    </div>
+    ${surpriseHtml}
+  </div>`;
+}
+
+function renderGeoNews(){
+  if(geoNewsLoading && !geoNews){
+    return `<div class="loading" style="padding:24px;"><div class="spinner"></div>Buscando noticias geopolíticas…</div>`;
+  }
+  if(geoNewsError && !geoNews){
+    return `<div class="empty" style="padding:24px;">No se pudieron cargar. <button type="button" class="retry-btn" onclick="loadGeoNews(true)">↻ Reintentar</button></div>`;
+  }
+  if(!geoNews || geoNews.length === 0){
+    return `<div class="empty" style="padding:24px;">Sin noticias por ahora.</div>`;
+  }
+  return `<div class="news-grid">` + geoNews.map(item=>`
+    <div class="news-card">
+      <span class="tag" style="background:rgba(255,165,82,0.18);color:var(--c-orange-ink)">Geopolítica</span>
+      <a href="${item.link}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
+      <div class="meta"><span>${escapeHtml(item.source || '')}</span><span>${timeAgo(item.pubDate)}</span></div>
+    </div>`).join('') + `</div>`;
+}
+
+function renderEventsList(){
+  const events = getUpcomingEvents();
+  if(events.length === 0) return `<div class="empty" style="padding:24px;">Sin eventos próximos registrados.</div>`;
+  return `<div class="events-list">` + events.map(e=>`
+    <div class="event-row">
+      <div class="event-date">${fmtDate(e.date)}</div>
+      <div class="event-body">
+        <div class="event-title">${escapeHtml(e.title)}</div>
+        <div class="event-desc">${escapeHtml(e.desc)}</div>
+      </div>
+    </div>`).join('') + `</div>`;
+}
+
+function sectionTitleHtml(key, label, extraButtonHtml){
+  const isOpen = macroSectionsOpen[key];
+  const toggleBtn = `<button type="button" class="pill-btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:11.5px;" onclick="toggleMacroSection('${key}')">${isOpen ? '▲ Ocultar' : '▼ Ver'}</button>`;
+  return `<div class="subsection-title" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">${label} <span style="display:flex;gap:8px;">${extraButtonHtml || ''}${toggleBtn}</span></div>`;
+}
+
+function renderMacro(){
+  const wrap = document.getElementById('macroWrap');
+  if(!wrap) return;
+
+  const hasFinnhub = !!getFinnhubKey();
+  const hasFred = !!getFredKey();
+
+  let html = '';
+
+  html += sectionTitleHtml('us', '🇺🇸 Indicadores de EE.UU.');
+  if(macroSectionsOpen.us){
+    if(!hasFred){
+      html += `<div class="empty" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <span>Añade tu clave gratuita de FRED para ver CPI, PCE, tipos de la Fed y más.</span>
+        <button type="button" class="pill-btn accent" onclick="openSettings()">⚙️ Configurar</button>
+      </div>`;
+    } else if(macroLoading && !macroLoaded){
+      html += `<div class="loading"><div class="spinner"></div>Cargando indicadores…</div>`;
+    } else {
+      html += `<div class="indicator-grid">` + INDICATORS.filter(i=>i.group==='us').map(renderIndicatorCard).join('') + `</div>`;
+      if(macroHasError){
+        html += `<div style="margin-top:10px;"><button type="button" class="pill-btn" onclick="loadMacro(true)">↻ Reintentar indicadores fallidos</button></div>`;
+      }
+      html += `<div class="i-date" style="margin-top:10px;">PMI Manufacturero/Servicios (ISM) no tiene API gratuita — consulta <a href="https://www.ismworld.org" target="_blank" rel="noopener">ismworld.org</a>.</div>`;
+    }
+  }
+
+  html += sectionTitleHtml('market', '📈 Indicadores de mercado');
+  if(macroSectionsOpen.market){
+    if(!hasFred){
+      html += `<div class="empty">Configura tu clave de FRED para ver estos datos.</div>`;
+    } else if(macroLoading && !macroLoaded){
+      html += `<div class="loading"><div class="spinner"></div>Cargando…</div>`;
+    } else {
+      html += `<div class="indicator-grid">` + INDICATORS.filter(i=>i.group==='market').map(renderIndicatorCard).join('') + `</div>`;
+    }
+  }
+
+  html += sectionTitleHtml('europe', '🇪🇺 Indicadores de Europa');
+  if(macroSectionsOpen.europe){
+    if(!hasFred){
+      html += `<div class="empty">Configura tu clave de FRED para ver estos datos.</div>`;
+    } else if(macroLoading && !macroLoaded){
+      html += `<div class="loading"><div class="spinner"></div>Cargando…</div>`;
+    } else {
+      html += `<div class="indicator-grid">` + INDICATORS.filter(i=>i.group==='europe').map(renderIndicatorCard).join('') + `</div>`;
+    }
+  }
+
+  html += sectionTitleHtml('asia', '🌏 Indicadores de Asia');
+  if(macroSectionsOpen.asia){
+    if(!hasFred){
+      html += `<div class="empty">Configura tu clave de FRED para ver estos datos.</div>`;
+    } else if(macroLoading && !macroLoaded){
+      html += `<div class="loading"><div class="spinner"></div>Cargando…</div>`;
+    } else {
+      html += `<div class="indicator-grid">` + INDICATORS.filter(i=>i.group==='asia').map(renderIndicatorCard).join('') + `</div>`;
+      html += `<div class="i-date" style="margin-top:10px;">China no publica tipos de interés ni PIB con frecuencia estable en FRED — se muestran los indicadores disponibles.</div>`;
+    }
+  }
+
+  html += `<div class="subsection-title" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">💰 Resultados empresariales (IA y Big Tech) <button type="button" class="pill-btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:11.5px;" onclick="toggleEarnings()">${earningsVisible ? '▲ Ocultar informe' : '▼ Ver informe'}</button></div>`;
+  if(!hasFinnhub){
+    html += `<div class="empty" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <span>Añade tu clave de Finnhub para ver resultados y próximas fechas.</span>
+      <button type="button" class="pill-btn accent" onclick="openSettings()">⚙️ Configurar</button>
+    </div>`;
+  } else if(earningsVisible){
+    if(earningsLoading && Object.keys(earningsCache).length === 0){
+      html += `<div class="loading"><div class="spinner"></div>Cargando resultados…</div>`;
+    } else {
+      html += `<div class="earnings-list">` + EARNINGS_WATCHLIST.map(renderEarningsRow).join('') + `</div>`;
+    }
+  }
+
+  html += sectionTitleHtml('geo', '🌍 Geopolítica', `<button type="button" class="pill-btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:11.5px;" onclick="loadGeoNews(true)" ${geoNewsLoading ? 'disabled' : ''}>↻ Actualizar</button>`);
+  if(macroSectionsOpen.geo) html += renderGeoNews();
+
+  html += sectionTitleHtml('events', '📅 Próximos eventos');
+  if(macroSectionsOpen.events) html += renderEventsList();
+
+  html += sectionTitleHtml('questions', '🧭 Las 4 preguntas clave antes de mover la cartera');
+  if(macroSectionsOpen.questions){
+    html += `<div class="questions-card"><ol>
+      <li>¿La economía se está acelerando o desacelerando?</li>
+      <li>¿La Fed probablemente bajará o subirá los tipos?</li>
+      <li>¿Las empresas de IA siguen creciendo al ritmo esperado?</li>
+      <li>¿El mercado está caro o ofrece oportunidades de compra?</li>
+    </ol></div>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
+/* ---------------- Render: noticias por empresa ---------------- */
+
+function renderContent(loading){
+  const content = document.getElementById('content');
+  const countText = document.getElementById('countText');
+  const unreadCount = companies.filter(c=>unreadNewsCompanies.has(c)).length;
+  countText.textContent = companies.length
+    ? `${companies.length} empresa(s) en tu cartera${unreadCount ? ` · 🔴 ${unreadCount} con noticias nuevas` : ''}`
+    : '';
+
+  if(companies.length === 0){
+    content.innerHTML = `<div class="empty">Tu cartera está vacía. Añade una empresa arriba para empezar a recibir noticias.</div>`;
+    return;
+  }
+  if(loading){
+    content.innerHTML = `<div class="loading"><div class="spinner"></div>Buscando noticias y datos de mercado…</div>`;
+    return;
+  }
+
+  const baseList = activeFilter === 'all' ? companies : [activeFilter];
+  const list = baseList.filter(c=>!hiddenFromNews.has(c));
+  const hiddenInView = baseList.filter(c=>hiddenFromNews.has(c));
+  let html = '';
+
+  if(hiddenInView.length > 0){
+    html += `<div class="empty" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <span>${hiddenInView.length} empresa(s) oculta(s) de noticias: ${hiddenInView.map(escapeHtml).join(', ')}</span>
+      <button type="button" class="pill-btn" onclick="showAllInNews()">↺ Mostrar todas</button>
+    </div>`;
+  }
+
+  list.forEach(company=>{
+    const items = newsCache[company];
+    const color = colorFor(company);
+    const tagColor = tagColorFor(company);
+    html += `<div class="company-section">
+      <h2>
+        <span style="display:flex;align-items:center;gap:10px;">
+          <span class="avatar" style="background:${color.bg}">${escapeHtml(initials(company))}</span>${escapeHtml(company)}
+        </span>
+        <button type="button" class="section-remove" title="Ocultar ${escapeHtml(company)} de esta lista de noticias" onclick="hideFromNews('${escJs(company)}')">✕</button>
+      </h2>`;
+
+    html += renderValuation(company);
+
+    if(newsError[company] && !items){
+      html += `<div class="empty">
+        No se pudieron cargar noticias para ${escapeHtml(company)}.
+        <br><button type="button" class="retry-btn" onclick="retryCompany('${escJs(company)}')">↻ Reintentar</button>
+      </div>`;
+    } else if(!items){
+      html += `<div class="loading"><div class="spinner"></div>Cargando…</div>`;
+    } else if(items.length === 0){
+      html += `<div class="empty">Sin noticias recientes.</div>`;
+    } else {
+      html += `<div class="news-grid">`;
+      items.forEach(item=>{
+        html += `
+          <div class="news-card">
+            <span class="tag" style="background:${tagColor.bg};color:${tagColor.ink}">${escapeHtml(company)}</span>
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
+            <div class="meta">
+              <span>${escapeHtml(item.source || '')}</span>
+              <span>${timeAgo(item.pubDate)}</span>
+            </div>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+/* ---------------- Configuración ---------------- */
+
+function openSettings(){ document.getElementById('settingsOverlay').classList.add('open'); }
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('open'); }
+
+/* ---------------- Eventos de UI ---------------- */
+
+document.getElementById('addForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const input = document.getElementById('companyInput');
+  const name = input.value.trim();
+  if(!name) return;
+  if(companies.some(c=>c.toLowerCase() === name.toLowerCase())){ input.value=''; return; }
+  companies.push(name);
+  saveCompanies();
+  input.value = '';
+  renderChips();
+  loadAllNews(false);
+});
+
+document.getElementById('refreshBtn').addEventListener('click', ()=>loadAllNews(true));
+document.getElementById('notifyBtn').addEventListener('click', async ()=>{
+  if(!('Notification' in window)){
+    alert('Tu navegador no soporta notificaciones.');
+    return;
+  }
+  const currentlyOn = notifyEnabled() && Notification.permission === 'granted';
+  if(currentlyOn){
+    localStorage.setItem(NOTIFY_ENABLED_KEY, '0');
+    updateNotifyBtnUI();
+    return;
+  }
+  if(Notification.permission === 'denied'){
+    alert('Bloqueaste los avisos para esta página. Para activarlos, tenés que habilitar notificaciones para este sitio desde la configuración de tu navegador.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted') localStorage.setItem(NOTIFY_ENABLED_KEY, '1');
+  updateNotifyBtnUI();
+});
+updateNotifyBtnUI();
+document.getElementById('settingsBtn').addEventListener('click', ()=>{
+  document.getElementById('finnhubKeyInput').value = getFinnhubKey();
+  document.getElementById('fredKeyInput').value = getFredKey();
+  document.getElementById('newPasswordInput').value = '';
+  openSettings();
+});
+document.getElementById('closeSettingsBtn').addEventListener('click', closeSettings);
+document.getElementById('settingsOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'settingsOverlay') closeSettings();
+});
+document.getElementById('removePasswordBtn').addEventListener('click', ()=>{
+  if(!localStorage.getItem(PASSWORD_HASH_KEY)){
+    alert('Esta app no tiene contraseña configurada.');
+    return;
+  }
+  if(confirm('¿Quitar la contraseña de acceso a esta app?')){
+    localStorage.removeItem(PASSWORD_HASH_KEY);
+    localStorage.setItem(PASSWORD_DISABLED_KEY, '1');
+    try{ sessionStorage.removeItem(UNLOCKED_SESSION_KEY); }catch(e){}
+    alert('Contraseña eliminada. La próxima vez que abras la app no se pedirá.');
+  }
+});
+document.getElementById('saveSettingsBtn').addEventListener('click', async ()=>{
+  const prevFinnhub = getFinnhubKey();
+  const prevFred = getFredKey();
+  const newFinnhub = document.getElementById('finnhubKeyInput').value.trim();
+  const newFred = document.getElementById('fredKeyInput').value.trim();
+  localStorage.setItem(FINNHUB_KEY_STORE, newFinnhub);
+  localStorage.setItem(FRED_KEY_STORE, newFred);
+
+  const newPassword = document.getElementById('newPasswordInput').value;
+  if(newPassword){
+    if(newPassword.length < 4){
+      alert('La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+    localStorage.setItem(PASSWORD_HASH_KEY, await sha256Hex(newPassword));
+    localStorage.removeItem(PASSWORD_DISABLED_KEY);
+    document.getElementById('newPasswordInput').value = '';
+  }
+
+  closeSettings();
+
+  let needsReload = false;
+  if(newFinnhub && newFinnhub !== prevFinnhub){
+    Object.keys(marketError).forEach(k=>delete marketError[k]);
+    marketCache = {}; marketCacheSavedAt = 0;
+    earningsCache = {}; earningsCacheSavedAt = 0;
+    try{ localStorage.removeItem(MARKET_CACHE_KEY); localStorage.removeItem(EARNINGS_CACHE_KEY); }catch(e){}
+    needsReload = true;
+  }
+  if(newFred && newFred !== prevFred){
+    macroLoaded = false;
+    macroCache = {};
+    macroCacheSavedAt = 0;
+    try{ localStorage.removeItem(MACRO_CACHE_KEY); }catch(e){}
+    needsReload = true;
+  }
+  if(needsReload) loadAllNews(true);
+  else renderMacro();
+});
+
+window.addEventListener('online', ()=>{
+  if(document.getElementById('appRoot').style.display !== 'none') loadAllNews(true);
+});
+
+setupLockScreen();
+</script>
+
+</body>
+</html>

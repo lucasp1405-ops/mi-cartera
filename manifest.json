@@ -1,0 +1,16 @@
+{
+  "name": "Mi Cartera · Noticias",
+  "short_name": "Mi Cartera",
+  "description": "Noticias, valuación de mercado y panorama macro de tu cartera.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6C945",
+  "theme_color": "#F6C945",
+  "lang": "es",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
