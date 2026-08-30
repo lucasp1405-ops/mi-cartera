@@ -2,17 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi Cartera · Noticias</title>
-
-<!-- PWA: permite "Agregar a pantalla de inicio" en iPhone y que abra a pantalla completa -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#F6C945">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Mi Cartera">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,10 +45,7 @@
     color:var(--ink);
     background:var(--bg);
     min-height:100vh;
-    padding-top:env(safe-area-inset-top);
-    padding-bottom:calc(70px + env(safe-area-inset-bottom));
-    padding-left:env(safe-area-inset-left);
-    padding-right:env(safe-area-inset-right);
+    padding-bottom:70px;
   }
   .container{max-width:1080px;margin:0 auto;padding:0 22px;}
 
@@ -873,6 +861,7 @@ restoreMarketCache();
 const SEEN_NEWS_KEY = 'mi-cartera-seen-news-links';
 const UNREAD_NEWS_KEY = 'mi-cartera-unread-news';
 const NOTIFY_ENABLED_KEY = 'mi-cartera-notify-enabled';
+
 
 let seenNewsLinks = {}; // { company: [link, ...] }
 try{ seenNewsLinks = JSON.parse(localStorage.getItem(SEEN_NEWS_KEY) || '{}'); }catch(e){ seenNewsLinks = {}; }
