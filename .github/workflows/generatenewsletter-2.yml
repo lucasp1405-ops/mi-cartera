@@ -1,0 +1,53 @@
+name: Generar newsletter de inversión
+
+# Corre una vez por día, antes de que abra el mercado de EE.UU. (13:00 UTC ≈ 9:00am hora de
+# Nueva York / 10:00am hora Argentina — siempre al menos 30 min antes de la apertura, tanto
+# en horario de verano como de invierno de EE.UU.): busca noticias recientes de cada empresa
+# de scripts/portfolio.json y le pide a Claude que arme el análisis. El resultado queda en
+# newsletters.json, que la app muestra en la sección "📰 Newsletter de inversión".
+#
+# Para agregar o sacar una empresa de la cartera que se analiza: editá scripts/portfolio.json
+# directamente en GitHub (es una lista simple de nombres).
+#
+# Nota: si el repositorio pasa 60 días sin ningún commit, GitHub pausa automáticamente los
+# workflows programados. Si eso pasa, basta con entrar a la pestaña "Actions" y reactivarlo.
+
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-newsletter
+  cancel-in-progress: false
+
+jobs:
+  generate-newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generar la newsletter con Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-newsletter.mjs
+
+      - name: Guardar la newsletter generada
+        run: |
+          git config user.name "mi-cartera-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add newsletters.json
+          if [ -f scripts/newsletter-state.json ]; then
+            git add scripts/newsletter-state.json
+          fi
+          git diff --staged --quiet || git commit -m "Newsletter del $(date -u +%Y-%m-%d) [skip ci]"
+          git push
